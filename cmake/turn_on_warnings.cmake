@@ -30,7 +30,7 @@ if(NOT DEFINED FOO_WARNING_FLAGS)
   endif()
 
   if (FOO_WERROR_ENABLED)   # Treat warning as errors
-    # add_cxx_compiler_flag_if_supported("-Werror")
+    add_cxx_compiler_flag_if_supported("-Werror")
   endif()
 endif()
 

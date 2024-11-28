@@ -60,7 +60,7 @@ endforeach()
 add_library(${FOO_LIBRARY} STATIC ${HEADER_FILES} ${SOURCE_FILES})
 add_library(${FOO_LIBRARY_NS} ALIAS ${FOO_LIBRARY})
 
-set_target_properties(${FOO_LIBRARY} PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(${FOO_LIBRARY} PROPERTIES LINKER_LANGUAGE CXX)
 
 include(turn_on_warnings)
 turn_on_warnings(${FOO_LIBRARY})

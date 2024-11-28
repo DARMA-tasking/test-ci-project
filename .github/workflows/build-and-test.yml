@@ -137,7 +137,7 @@ jobs:
           fi
 
           if [ $FOO_TEST_REPORT != "" ]; then
-            echo "FOO_TEST_REPORT=${FOO_TEST_REPORT}" >> "$GITHUB_OUTPUT"
+            echo "JUNIT_REPORT_PATH=${FOO_TEST_REPORT}" >> "$GITHUB_OUTPUT"
           else
 
       # - name: Build and test

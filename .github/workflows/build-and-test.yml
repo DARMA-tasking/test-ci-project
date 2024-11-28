@@ -110,13 +110,14 @@ jobs:
             FOO_SRC_DIR=/workspace
           fi
           CMD='
-            cd '$FOO_SRC_DIR;' \
-            chmod +x build.sh; \
+            cd '${FOO_SRC_DIR};' \
+            ls -l;
+            chmod +x ./build.sh; \
             \
             FOO_BUILD_DIR='${FOO_BUILD_DIR}' \
             FOO_COVERAGE_ENABLED=ON \
             FOO_RUN_TESTS=ON \
-            build.sh;'
+            ./build.sh;'
 
           echo "Running ${CMD}"
 

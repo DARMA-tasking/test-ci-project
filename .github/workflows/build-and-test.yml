@@ -104,20 +104,16 @@ jobs:
 
       - name: PR tests
         run: |
-          FOO_SRC_DIR=${{ github.workspace }} 
-          FOO_BUILD_DIR=/opt/foo/build
+          WORKSPACE=${{ github.workspace }} 
           if [[ "${{ matrix.runner.image }}" != "" ]]; then
-            FOO_SRC_DIR=/workspace
+            WORKSPACE=/workspace
           fi
           CMD='
-            cd '${FOO_SRC_DIR};' \
+            cd '${WORKSPACE}'; \
             ls -l;
             chmod +x ./build.sh; \
             \
-            FOO_BUILD_DIR='${FOO_BUILD_DIR}' \
-            FOO_COVERAGE_ENABLED=ON \
-            FOO_RUN_TESTS=ON \
-            ./build.sh;'
+            export $(cat .env | egrep -v "(^#.*|^$)" | xargs) && ./build.sh'
 
           echo "Running ${CMD}"
 

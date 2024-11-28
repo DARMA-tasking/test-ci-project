@@ -36,6 +36,8 @@ jobs:
     name: Run ${{ matrix.runner.name }}
     runs-on: ${{ matrix.runner.runs-on }}
     needs: get-matrix
+    env:
+      JUNIT_REPORT: ~
     strategy:
       fail-fast: false
       matrix:
@@ -134,6 +136,10 @@ jobs:
             exit $(docker container inspect --format '{{.State.ExitCode}}' test-container)
           fi
 
+          if [ $FOO_TEST_REPORT != "" ]; then
+            echo "FOO_TEST_REPORT=${FOO_TEST_REPORT}" >> "$GITHUB_OUTPUT"
+          else
+
       # - name: Build and test
       # TODO: Build an test step.
       # > Option 1: Docker image (Environment Setup="docker") WIP
@@ -152,3 +158,19 @@ jobs:
       # note: (as in vt-tv or LBAF)
 
       # - name: Report coverage
+
+      - name: Unit tests
+        if: ${{ env.JUNIT_REPORT != '' }}
+        uses: phoenix-actions/test-reporting@v15
+        with:
+          name: Tests report
+          path: ${{ env.JUNIT_REPORT }}
+          reporter: java-junit
+          output-to: step-summary
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: foo-output-${{ matrix.runner.setup }}
+          path: /opt/foo/output

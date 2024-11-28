@@ -162,7 +162,7 @@ if [[ "${FOO_BUILD}" == "ON" ]]; then
       rm -rf CMakeCache.txt
     fi
     if [ -d "${FOO_BUILD_DIR}" ]; then
-      rm -rf ${FOO_BUILD_DIR} # recreate clean and build
+      rm -rf ${FOO_BUILD_DIR}/* # empty the build directory
     fi
   fi
 

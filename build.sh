@@ -157,9 +157,13 @@ echo DISPLAY=$DISPLAY
 if [[ "${FOO_BUILD}" == "ON" ]]; then
   if [[ "${FOO_CLEAN}" == "ON" ]]; then
     echo "> Cleaning"
-    # Remove CMakeCache for fresh build
-    rm -rf CMakeCache.txt
-    rm -rf ${FOO_BUILD_DIR} # recreate clean and build
+    if [ -f "CMakeCache.txt" ]; then
+      # Remove CMakeCache for fresh build
+      rm -rf CMakeCache.txt
+    fi
+    if [ -d "${FOO_BUILD_DIR}" ]; then
+      rm -rf ${FOO_BUILD_DIR} # recreate clean and build
+    fi
   fi
 
   mkdir -p ${FOO_BUILD_DIR}

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Description: This script builds foo project
+# Description: This script builds foo project and optionnaly run tests and coverage
 
 set -e
 
@@ -35,7 +35,8 @@ PARENT_DIR="$(dirname "$CURRENT_DIR")"
 
 CC="${CC:-$(which gcc || echo '')}"
 CXX="${CXX:-$(which g++ || echo '')}"
-FOO_DIR="${FOO_DIR:-$CURRENT_DIR}"
+GCOV="${GCOV:-$(which gcov || echo '')}"
+FOO_SRC_DIR="${FOO_SRC_DIR:-$CURRENT_DIR}"
 FOO_BUILD_DIR="${FOO_BUILD_DIR:-$CURRENT_DIR/build}"
 FOO_OUTPUT_DIR="${FOO_OUTPUT_DIR:-$CURRENT_DIR/output}"
 # >> Build settings
@@ -50,7 +51,7 @@ FOO_WERROR_ENABLED=$(on_off ${FOO_WERROR_ENABLED:-OFF})
 # >> Run tests settings
 FOO_RUN_TESTS=$(on_off ${FOO_RUN_TESTS:-OFF})
 FOO_RUN_TESTS_FILTER=${FOO_RUN_TESTS_FILTER:-""}
-FOO_COVERAGE_REPORT=${FOO_COVERAGE_REPORT:-""}
+FOO_COVERAGE_REPORT=${FOO_COVERAGE_REPORT:-"${FOO_OUTPUT_DIR}/cov.html"}
 
 # >> CLI args support
 
@@ -177,7 +178,7 @@ if [[ "${FOO_BUILD}" == "ON" ]]; then
     -DFOO_TESTS_ENABLED=${FOO_TESTS_ENABLED} \
     -DFOO_COVERAGE_ENABLED=${FOO_COVERAGE_ENABLED} \
     \
-    "${FOO_DIR}"
+    "${FOO_SRC_DIR}"
 
   time cmake --build . --parallel -j "${FOO_CMAKE_JOBS}"
 

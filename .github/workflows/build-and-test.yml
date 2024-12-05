@@ -23,12 +23,20 @@ jobs:
     name: Get matrix
     runs-on: ubuntu-latest
     steps:
+      # Note: Filtering the test environments
+      # A jq query can be used to filter the matrix of test environments
+      # - All (default):           `matrix=$(cat github.json | jq '.matrix')`
+      # - CLang only:              `matrix=$(cat github.json | jq '.matrix | map(select(.label | contains("clang")))')`
+      # - gcc>=11:                 `matrix=$(cat github.json | jq '.matrix | map(select(.name | test("gcc-[1-9][1-9]+")))')`
+      # - gcc>=11|clang>=14        `matrix=$(cat github.json | jq '.matrix | map(select(.name | test("gcc-[1-9][1-9]+-|clang-[1-9][2-9]+")))')`
       - name: Get matrix
         id: get-matrix
         run: |
           wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/matrix/github.json
           matrix=$(cat github.json | jq '.matrix')
           echo "runner=$(echo $matrix)" >> $GITHUB_OUTPUT
+
+
     outputs:
       matrix: ${{ steps.get-matrix.outputs.runner }}
 

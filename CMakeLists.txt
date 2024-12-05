@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
-project(foo VERSION 0.0.1)
+
+file(READ "VERSION" _foo_version_str)
+string(STRIP "${_vt_version_str}" _foo_version_str)
+project(foo VERSION ${_foo_version_str})
+
+# To generate output file with compilation errors and warnings
+# CMake generator needs to be known
+set(USED_CMAKE_GENERATOR "${CMAKE_GENERATOR}" CACHE STRING "Expose CMAKE_GENERATOR" FORCE)
+
+# Prevent mixing install policies from add_subdirectory;
+# This suppresses a warning as the old behavior is deprecated-by-definition.
+cmake_policy(SET CMP0082 NEW)
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 2.24:
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -36,9 +47,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 message(STATUS "CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
 
-option(FOO_WERROR_ENABLED "Build foo with warnings as errors" OFF)
-option(FOO_TESTS_ENABLED "Build foo with unit tests" ON)
-option(FOO_COVERAGE_ENABLED "Build foo with coverage" OFF)
+
 
 if(APPLE AND NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   add_compile_options(-ffat-lto-objects)
@@ -53,6 +62,8 @@ set(PROJECT_LIB_DIR      ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(PROJECT_EXAMPLE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_APP_DIR      ${CMAKE_CURRENT_SOURCE_DIR}/apps)
 set(PROJECT_BINDINGS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bindings)
+
+include(cmake/configure_options.cmake)
 
 add_subdirectory(src)
 

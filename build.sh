@@ -209,7 +209,7 @@ if [ "$FOO_RUN_TESTS" == "ON" ]; then
     GTEST_OPTIONS="$GTEST_OPTIONS --gtest_filter=\"$FOO_RUN_TESTS_FILTER\""
   fi
 
-  gtest_cmd="\"$FOO_BUILD_DIR/tests/UnitTests\" $GTEST_OPTIONS"
+  gtest_cmd="\"$FOO_BUILD_DIR/tests/unit/UnitTests\" $GTEST_OPTIONS"
   echo "Run GTest..."
   eval "$gtest_cmd" || true
   echo "Tests done."

@@ -150,8 +150,26 @@ jobs:
           fi
           CMD='
             cd '${WORKSPACE}'; \
+            echo "Get lcov..."
+            . ~/.setuprc
+            if [ "$OS_NAME" = "Ubuntu" ]
+            then
+                apt-get update -y -q
+                apt-get install -y -q --no-install-recommends ca-certificates wget git
+            elif [ "$OS_NAME" = "Alpine Linux" ]
+            then
+                apk update
+                apk add --no-cache wget git bash
+            elif [ "$OS_NAME" = "macOS" ]
+            then
+                brew update
+            else
+                echo "Error. Please implement the pre-setup instructions for OS=$OS_NAME"
+                exit 1
+            fi
             wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/deps/packages.sh && chmod +x packages.sh
             ./packages.sh lcov
+            echo "lcov installed successfully !"
             ls -l;
             chmod +x ./build.sh; \
             \

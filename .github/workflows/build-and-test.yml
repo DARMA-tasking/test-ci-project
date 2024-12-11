@@ -151,7 +151,7 @@ jobs:
           CMD='
             cd '${WORKSPACE}'; \
             echo "Get lcov..." \
-            . ~/.setuprc \
+            . ~/.setuprc; \
             if [ "$OS_NAME" = "Ubuntu" ]; \
             then \
                 apt-get update -y -q; \
@@ -161,7 +161,7 @@ jobs:
             elif [ "$OS_NAME" = "macOS" ]; \
             then \
                 brew update; \
-            fi \
+            fi; \
             wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/deps/packages.sh && chmod +x packages.sh
             ./packages.sh lcov
             echo "lcov installed successfully !"

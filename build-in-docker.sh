@@ -1,12 +1,20 @@
+# This file enables to build and test this sample project using a DARMA/workflows generated docker image
+
 WORKSPACE=/workspace
-IMAGE=lifflander1/vt:wf-amd64-ubuntu-20.04-gcc-9-cuda-11.2.2-cpp
+# IMAGE=lifflander1/vt:wf-amd64-ubuntu-24.04-clang-16-cpp
+IMAGE=lifflander1/vt:wf-amd64-ubuntu-20.04-gcc-9-cuda-11.2.2-cpp # error with that one
+# IMAGE=lifflander1/vt:wf-amd64-ubuntu-22.04-gcc-12-zoltan-cpp
+
 
 CMD='
     cd '$WORKSPACE'; \
+    nvcc --version; \
     ls -l;
     chmod +x ./build.sh; \
     \
     export $(cat .env | egrep -v "(^#.*|^$)" | xargs) && ./build.sh'
+
+# in host: volume for build dir should be /tmp/cache/amd64-ubuntu-22.04-gcc-12-gcc-12-cache/ubuntu-cpp (example from VT)
 
 docker run \
       --name test-container \

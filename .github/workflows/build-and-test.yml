@@ -141,6 +141,7 @@ jobs:
             ${{ runner.os }}-${{ env.cache_name }}-${{ env.TS_YEAR }}-
             ${{ runner.os }}-${{ env.cache_name }}-
 
+      # ENHANCEMENT: remove lcov from there and add to base images in the workflows repository
       - name: PR tests
         run: |
           WORKSPACE=${{ github.workspace }} 
@@ -149,6 +150,8 @@ jobs:
           fi
           CMD='
             cd '${WORKSPACE}'; \
+            wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/deps/packages.sh && chmod +x packages.sh
+            ./packages.sh lcov
             ls -l;
             chmod +x ./build.sh; \
             \
@@ -210,4 +213,4 @@ jobs:
         if: always()
         with:
           name: foo-output-${{ matrix.runner.name }}
-          path: /opt/foo/output
+          path: ${{ env.OUTPUT_DIR }}

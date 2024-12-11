@@ -46,6 +46,13 @@ jobs:
     needs: get-matrix
     env:
       JUNIT_REPORT_PATH: ~
+      TS_YEAR: ~
+      TS_MONTH: ~
+      TS_DAY: ~
+      TS: ~
+      BUILD_DIR: /opt/foo/build
+      OUTPUT_DIR: /opt/foo/output
+      CACHE_DIR: /opt/foo/build/ccache
     strategy:
       fail-fast: false
       matrix:
@@ -84,33 +91,55 @@ jobs:
           fi
 
           
-    #   - name: Run (example)
-    #     run: |
-    #       CMD="uname -a"
-    #       if [[ "${{ matrix.runner.image }}" == "" ]]
-    #       then
-    #         $CMD
-    #       else
-    #         docker run ${{ matrix.runner.image }} $CMD
-    #       fi
-
-    #   - name: Extract timestamps for caching
-    #     run: |
-    #       mkdir -p /opt/scripts
-    #       cd /opt/scripts
-    #       wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/runner/set-variable.sh && chmod +x set-variable.sh
-    #       wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/runner/set-timestamps.sh && chmod +x set-timestamps.sh
-    #       ./set-timestamps.sh
-
-      - name: Setup build cache (vt)
+      - name: Display System Information
         run: |
-          echo "TODO: implement cache usage if required by your project"
+          CMD="uname -a"
+          if [[ "${{ matrix.runner.image }}" == "" ]]
+          then
+            echo "Runner System Information:"
+            $CMD
+          else
+            echo "Docker System Information:"
+            docker run ${{ matrix.runner.image }} $CMD
+          fi
 
-      - name: PR tests env
+      # TODO: remove the commented lines if 
+      # - name: Extract timestamps for caching (using CMake as in VT)
+      #   run: |
+      #     echo "$1=$2" >> $GITHUB_ENV
+
+      #     mkdir -p /opt/scripts
+      #     cd /opt/scripts
+      #     wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/runner/set-variable.sh && chmod +x set-variable.sh
+      #     wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/runner/set-timestamps.sh && chmod +x set-timestamps.sh
+      #     ./set-timestamps.sh
+
+      - name: Build timestamp for caching
+        continue-on-error: true
         run: |
-          echo 'TODO...'
-          echo '1. Load environment variables from a matrix file (env set per env id) into .env'
-          echo '2. Load .env file to build `export $(cat .env | egrep -v "(^#.*|^$)" | xargs) && ./build.sh`'
+          echo "TS_YEAR=$(date -u +%Y)" >> $GITHUB_ENV
+          echo "TS_MONTH=$(date -u +%m)" >> $GITHUB_ENV
+          echo "TS_DAY=$(date -u +%d)" >> $GITHUB_ENV
+          echo "TS=$(date -u +%H:%M:%S)" >> $GITHUB_ENV
+
+      - name: Output timestamp for caching
+        continue-on-error: true
+        run: |
+          echo "my pipeline variable is $(TS) $(TS_YEAR) $(TS_MONTH) $(TS_DAY)"
+
+      - name: Update cache
+        continue-on-error: true
+        uses: actions/cache@v3
+        env:
+          cache_name: ${{ matrix.runner.name }}
+        with:
+          path: ${{ env.CACHE_DIR }}
+          key: ${{ runner.os }}-${{ env.cache_name }}-${{ env.TS_YEAR }}-${{ env.TS_MONTH }}-${{ env.TS_DAY }}-${{ env.TS }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.cache_name }}-${{ env.TS_YEAR }}-${{ env.TS_MONTH }}-${{ env.TS_DAY }}-
+            ${{ runner.os }}-${{ env.cache_name }}-${{ env.TS_YEAR }}-${{ env.TS_MONTH }}-
+            ${{ runner.os }}-${{ env.cache_name }}-${{ env.TS_YEAR }}-
+            ${{ runner.os }}-${{ env.cache_name }}-
 
       - name: PR tests
         run: |
@@ -134,8 +163,8 @@ jobs:
               --name test-container \
               -w $WORKSPACE \
               -v ${{ github.workspace }}:/workspace \
-              -v /opt/foo/build:/opt/foo/build \
-              -v /opt/foo/output:/opt/foo/output \
+              -v ${{ env.BUILD_DIR }}:/opt/foo/build \
+              -v ${{ env.OUTPUT_DIR }}:/opt/foo/output \
               -e CI="1" \
               -e https_proxy="" \
               -e http_proxy="" \

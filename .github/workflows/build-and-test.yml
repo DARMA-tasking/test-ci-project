@@ -150,17 +150,11 @@ jobs:
           fi
           CMD='
             cd '${WORKSPACE}'; \
-            echo "Get lcov..." \
+            echo "Get lcov..."; \
             . ~/.setuprc; \
-            if [ "$OS_NAME" = "Ubuntu" ]; \
-            then \
-                apt-get update -y -q; \
-            elif [ "$OS_NAME" = "Alpine Linux" ]; \
-            then \
-                apk update; \
-            elif [ "$OS_NAME" = "macOS" ]; \
-            then \
-                brew update; \
+            if [ "$OS_NAME" = "Ubuntu" ]; then apt-get update -y -q; \
+            elif [ "$OS_NAME" = "Alpine Linux" ]; then apk update; \
+            elif [ "$OS_NAME" = "macOS" ]; then brew update; \
             fi; \
             wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/deps/packages.sh && chmod +x packages.sh
             ./packages.sh lcov

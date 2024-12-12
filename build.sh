@@ -33,9 +33,15 @@ get_num_processors() {
 CURRENT_DIR="$(dirname $(realpath $0))"
 PARENT_DIR="$(dirname "$CURRENT_DIR")"
 
+if [ "$(uname)" == "Darwin" ]; then
+  CC="${CC:-$(xcodebuild -find clang || which gcc || which clang || echo '')}"
+  CXX="${CXX:-$(xcodebuild -find clang++ || which g++ || which clang++ || echo '')}"
+else
+  CC="${CC:-$(which gcc || which clang || echo '')}"
+  CXX="${CXX:-$(which g++ || which clang++ || echo '')}"  
+fi
 
-CC="${CC:-$(which gcc || echo '')}"
-CXX="${CXX:-$(which g++ || echo '')}"
+# GCOV is to specify lcov gcov-tool option. If using gcc-8 for example we should set gcov-8
 GCOV="${GCOV:-$(which gcov || echo '')}"
 COV_REPORT_GENERATOR="${COV_REPORT_GENERATOR:-$(which lcov || which gcovr || echo '')}"
 FOO_SRC_DIR="${FOO_SRC_DIR:-$CURRENT_DIR}"
@@ -54,14 +60,6 @@ FOO_WERROR_ENABLED=$(on_off ${FOO_WERROR_ENABLED:-OFF})
 FOO_RUN_TESTS=$(on_off ${FOO_RUN_TESTS:-OFF})
 FOO_RUN_TESTS_FILTER=${FOO_RUN_TESTS_FILTER:-""}
 FOO_COVERAGE_REPORT=${FOO_COVERAGE_REPORT:-"${FOO_OUTPUT_DIR}/cov"}
-
-# On mac do not use default gcc
-if [ "$(uname)" == "Darwin" ]; then
-  xcodebuild -find clang
-  xcodebuild -find clang++
-  CC=$(xcodebuild -find clang)
-  CXX=$(xcodebuild -find clang++)
-fi
 
 # >> CLI args support
 

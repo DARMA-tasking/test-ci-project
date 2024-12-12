@@ -154,12 +154,12 @@ jobs:
             \
             FOO_COVERAGE_ENABLED="${{ env.COVERAGE_ENABLED }}" \
             FOO_TEST_REPORT="${{ env.JUNIT_REPORT_PATH }}" \
-             ./build.sh'
+            ./build.sh'
 
           echo "Running ${CMD}"
 
           if [[ "${{ matrix.runner.image }}" == "" ]]; then
-            bash -c ". .env; $CMD";
+            bash -c "export $(cat .env | sed '/^[[:blank:]]*#/d;s/#.*//' | xargs) && $CMD";
           else
             docker run \
               --name test-container \

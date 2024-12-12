@@ -85,7 +85,7 @@ jobs:
             export WF_SETUP_ID=${{ matrix.runner.setup }}
             ./setup.sh
             echo "::endgroup::"
-          elif [[ "${{ matrix.runner.image }}" != "" ]]; then
+          elif [ "${{ matrix.runner.image }}" != "" ]; then
             echo "::group::Pull Docker image"
             docker image pull ${{ matrix.runner.image }}
             echo "::endgroup::"

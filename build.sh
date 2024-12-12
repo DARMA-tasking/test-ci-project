@@ -2,7 +2,7 @@
 
 # Description: This script builds foo project and optionnaly run tests and coverage
 
-set -e
+set -ex
 
 # A function to convert a value (1,0, Yes, no etc.) to ON or OFF.
 # If no value ON will be returned
@@ -169,11 +169,11 @@ echo DISPLAY=$DISPLAY
 if [[ "${FOO_BUILD}" == "ON" ]]; then
   if [[ "${FOO_CLEAN}" == "ON" ]]; then
     echo "> Cleaning"
-    if [[ -f "CMakeCache.txt" ]]; then
+    if [ -f "CMakeCache.txt" ]; then
       # Remove CMakeCache for fresh build
       rm -rf CMakeCache.txt
     fi
-    if [[ -d "${FOO_BUILD_DIR}" ]]; then
+    if [ -d "${FOO_BUILD_DIR}" ]; then
       rm -rf ${FOO_BUILD_DIR}/* # empty the build directory
     fi
   fi
@@ -203,18 +203,18 @@ if [[ "${FOO_BUILD}" == "ON" ]]; then
 fi # End build
 
 # Run tests
-if [[ "$FOO_RUN_TESTS" == "ON" ]]; then
+if [ "$FOO_RUN_TESTS" == "ON" ]; then
   mkdir -p "$FOO_OUTPUT_DIR"
   pushd $FOO_OUTPUT_DIR
   # Tests
   echo "> Running tests..."
   # Run GTest unit tests and display detail for failing tests
   GTEST_OPTIONS=""
-  if [[ "$FOO_TEST_REPORT" != "" ]]; then
+  if [ "$FOO_TEST_REPORT" != "" ]; then
     echo "Generating JUnit report..."
     GTEST_OPTIONS="$GTEST_OPTIONS --gtest_output=\"xml:$FOO_TEST_REPORT\""
   fi
-  if [[ "$FOO_RUN_TESTS_FILTER" != "" ]]; then
+  if [ "$FOO_RUN_TESTS_FILTER" != "" ]; then
     echo "Filtering Tests ($FOO_RUN_TESTS_FILTER)..."
     GTEST_OPTIONS="$GTEST_OPTIONS --gtest_filter=\"$FOO_RUN_TESTS_FILTER\""
   fi
@@ -228,7 +228,7 @@ if [[ "$FOO_RUN_TESTS" == "ON" ]]; then
 fi
 
 # Coverage
-if [[ "$FOO_COVERAGE_ENABLED" == "ON" ]]; then
+if [ "$FOO_COVERAGE_ENABLED" == "ON" ]; then
   mkdir -p "$FOO_OUTPUT_DIR"
   pushd $FOO_OUTPUT_DIR
 

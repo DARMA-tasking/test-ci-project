@@ -153,15 +153,16 @@ jobs:
             ls -l; \
             chmod +x ./build.sh; \
             \
-            export $(cat .env | egrep -v "(^#.*|^$)" | xargs) && export FOO_COVERAGE_ENABLED=${{ env.COVERAGE_ENABLED }} ./build.sh'
+            export FOO_COVERAGE_ENABLED=${{ env.COVERAGE_ENABLED }} && ./build.sh'
 
           echo "Running ${CMD}"
 
           if [[ "${{ matrix.runner.image }}" == "" ]]; then
-            bash -c "$CMD";
+            source .env && bash -c "$CMD";
           else
             docker run \
               --name test-container \
+              --env-file ./.env \
               -w $WORKSPACE \
               -v ${{ github.workspace }}:/workspace \
               -v ${{ env.BUILD_DIR }}:/opt/foo/build \

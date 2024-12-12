@@ -1,7 +1,9 @@
 # This file enables to build and test this sample project using a DARMA/workflows generated docker image
 
+# Path into the container to mount the current project directory
 WORKSPACE=/workspace
 
+# Available images from DARMA/workflows
 # IMAGE=lifflander1/vt:wf-amd64-alpine-clang-13-cpp
 # IMAGE=lifflander1/vt:wf-amd64-ubuntu-20.04-icpc-cpp
 # IMAGE=lifflander1/vt:wf-amd64-ubuntu-20.04-icpx-cpp
@@ -24,7 +26,14 @@ IMAGE=lifflander1/vt:wf-amd64-ubuntu-20.04-clang-9-cpp
 # IMAGE=lifflander1/vt:wf-amd64-ubuntu-24.04-clang-16-vtk-cpp
 # IMAGE=lifflander1/vt:wf-amd64-ubuntu-24.04-clang-16-zoltan-cpp
 
+# Environment (.env) overrides
+CCACHE_DIR="/tmp/cache/$TAG/ubuntu-cpp/foo/ccache" # similar path as in VT ci
+# FOO_CLEAN=ON
 
+sudo mkdir -p /opt/foo
+sudo chown -R $(whoami) /opt/foo
+
+# Command to run from inside the container
 CMD='
     cd '$WORKSPACE'; \
     ls -l;
@@ -32,10 +41,16 @@ CMD='
     \
     ./build.sh'
 
-# in host: volume for build dir should be /tmp/cache/amd64-ubuntu-22.04-gcc-12-gcc-12-cache/ubuntu-cpp (example from VT)
+# Use .env but override 
+# - CCACHE_DIR to get usnique cache dir per tested image
+# - FOO_CLEAN=0 to prevent build dir to be cleared as it contains also the ccache dir
 
+TAG=$(echo "lifflander1/vt:wf-amd64-ubuntu-20.04-clang-9-cpp" | cut -d':' -f 2)
+
+# create or recreate a container and run the build command.
+docker rm foo-$TAG
 docker run \
-    --name test-container \
+    --name foo-$TAG \
     --env-file ./.env \
     -w $WORKSPACE \
     -v .:/workspace \
@@ -44,6 +59,9 @@ docker run \
     -e CI="1" \
     -e https_proxy="" \
     -e http_proxy="" \
+    -e FOO_CLEAN=$FOO_CLEAN \
+    -e CCACHE_DIR="$CCACHE_DIR" \
+    -v $CCACHE_DIR:$CCACHE_DIR \
     $IMAGE \
     bash -c "$CMD"
 

@@ -45,7 +45,6 @@ jobs:
     runs-on: ${{ matrix.runner.runs-on }}
     needs: get-matrix
     env:
-      JUNIT_REPORT_PATH: ~
       TS_YEAR: ~
       TS_MONTH: ~
       TS_DAY: ~
@@ -54,6 +53,7 @@ jobs:
       OUTPUT_DIR: /opt/foo/output
       CACHE_DIR: /opt/foo/build/ccache
       COVERAGE_ENABLED: ${{  matrix.runner.name == 'wf-amd64-ubuntu-22.04-gcc-12-cpp' && 1 || 0 }}
+      JUNIT_REPORT_PATH: /opt/foo/output/junit.xml
     strategy:
       fail-fast: false
       matrix:
@@ -91,7 +91,6 @@ jobs:
             echo "::endgroup::"
           fi
 
-          
       - name: Display System Information
         run: |
           CMD="uname -a"
@@ -153,7 +152,9 @@ jobs:
             ls -l; \
             chmod +x ./build.sh; \
             \
-            export FOO_COVERAGE_ENABLED=${{ env.COVERAGE_ENABLED }} && ./build.sh'
+            FOO_COVERAGE_ENABLED="${{ env.COVERAGE_ENABLED }}" \
+            FOO_TEST_REPORT="${{ env.JUNIT_REPORT_PATH }}" \
+             ./build.sh'
 
           echo "Running ${CMD}"
 
@@ -175,31 +176,12 @@ jobs:
             exit $(docker container inspect --format '{{.State.ExitCode}}' test-container)
           fi
 
-          if [ "$FOO_TEST_REPORT" != "" ]; then
+          if [ -f" $FOO_TEST_REPORT" != "" ]; then
             echo "JUNIT_REPORT_PATH=${FOO_TEST_REPORT}" >> "$GITHUB_OUTPUT"
           fi
 
-      # - name: Build and test
-      # TODO: Build an test step.
-      # > Option 1: Docker image (Environment Setup="docker") WIP
-      # - pull the docker image
-      # - build & Test using `docker exec [container] build_and_test.sh` for example or by using an inner build_and_test docker image
-      # - (TODO: copy artifacts using a volume)
-
-      # > Option 2: Current runner (Environment Setup="local") (Future for some macos)
-      # - setup dependencies here directly
-      #   (Here a work needs to be done to determine how to get the dependencies script. It might be shared by the workflows repo and put in matrix)
-      # - build & Test using build_and_test.sh
-
-      # - name: Upload artifacts
-
-      # - name: Report test results
-      # note: (as in vt-tv or LBAF)
-
-      # - name: Report coverage
-
       - name: Unit tests
-        if: ${{ env.JUNIT_REPORT_PATH != '' }}
+        if: (success() || failure()) && ${{ env.JUNIT_REPORT_PATH != '' }}
         uses: phoenix-actions/test-reporting@v15
         with:
           name: Tests report

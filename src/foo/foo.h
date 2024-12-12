@@ -16,10 +16,7 @@ struct Foo {
   /**
    * \brief Calculates the sum of two integers.
    */
-  int sum(int a , int b) const {
-    return a + b;
-  }
-
+  int sum(int a , int b) const;
 };
 
 }

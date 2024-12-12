@@ -34,11 +34,6 @@ CURRENT_DIR="$(dirname $(realpath $0))"
 PARENT_DIR="$(dirname "$CURRENT_DIR")"
 
 
-if [ "$(uname)" == "Darwin" ]; then
-  CC=(which clang)
-  CXX=(which clang++)
-fi
-
 CC="${CC:-$(which gcc || echo '')}"
 CXX="${CXX:-$(which g++ || echo '')}"
 GCOV="${GCOV:-$(which gcov || echo '')}"
@@ -59,6 +54,14 @@ FOO_WERROR_ENABLED=$(on_off ${FOO_WERROR_ENABLED:-OFF})
 FOO_RUN_TESTS=$(on_off ${FOO_RUN_TESTS:-OFF})
 FOO_RUN_TESTS_FILTER=${FOO_RUN_TESTS_FILTER:-""}
 FOO_COVERAGE_REPORT=${FOO_COVERAGE_REPORT:-"${FOO_OUTPUT_DIR}/cov"}
+
+# On mac do not use default gcc
+if [ "$(uname)" == "Darwin" ]; then
+  xcodebuild -find clang
+  xcodebuild -find clang++
+  CC=$(xcodebuild -find clang)
+  CXX=$(xcodebuild -find clang++)
+fi
 
 # >> CLI args support
 

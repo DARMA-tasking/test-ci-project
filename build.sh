@@ -2,7 +2,7 @@
 
 # Description: This script builds foo project and optionnaly run tests and coverage
 
-set -ex
+set -e
 
 # A function to convert a value (1,0, Yes, no etc.) to ON or OFF.
 # If no value ON will be returned
@@ -236,21 +236,19 @@ if [ "$FOO_COVERAGE_ENABLED" == "ON" ]; then
     pushd $FOO_BUILD_DIR
     gcovr -r $CURRENT_DIR --html-details $FOO_OUTPUT_DIR/coverage.html
     popd
-  else
-    if [[ "$COV_REPORT_GENERATOR" == *"lcov"* ]]; then
-      # base coverage files
-      echo "lcov capture:"
-      lcov --capture --directory $FOO_BUILD_DIR --output-file lcov_foo_test.info --gcov-tool $GCOV
-      lcov --remove lcov_foo_test.info -o lcov_foo_test_no_deps.info '*/lib/*'
-      lcov --list lcov_foo_test_no_deps.info
-      # optional coverage html report
-      if [ "$FOO_COVERAGE_REPORT" != "" ]; then
-        genhtml --prefix ./src --ignore-errors source lcov_foo_test_no_deps.info --legend --title "$(git rev-parse HEAD)" --output-directory="$FOO_COVERAGE_REPORT"
-      fi
-    else
-      echo Cannot determine the coverage report generator tool path. Please set COV_REPORT_GENERATOR variable !
-      exit 1;
+  elif [[ "$COV_REPORT_GENERATOR" == *"lcov"* ]]; then
+    # base coverage files
+    echo "lcov capture:"
+    lcov --capture --directory $FOO_BUILD_DIR --output-file lcov_foo_test.info --gcov-tool $GCOV
+    lcov --remove lcov_foo_test.info -o lcov_foo_test_no_deps.info '*/lib/*'
+    lcov --list lcov_foo_test_no_deps.info
+    # optional coverage html report
+    if [ "$FOO_COVERAGE_REPORT" != "" ]; then
+      genhtml --prefix ./src --ignore-errors source lcov_foo_test_no_deps.info --legend --title "$(git rev-parse HEAD)" --output-directory="$FOO_COVERAGE_REPORT"
     fi
+  else
+    echo Cannot determine the coverage report generator tool path. Please set COV_REPORT_GENERATOR variable !
+    exit 1;
   fi
   popd
 fi

@@ -16,10 +16,7 @@ struct Bar {
   /**
    * \brief Calculates the difference of two integers.
    */
-  int diff(int a , int b) const {
-    return a - b;
-  }
-
+  int diff(int a , int b) const;
 };
 
 }

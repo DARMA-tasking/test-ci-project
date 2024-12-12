@@ -159,11 +159,11 @@ jobs:
           echo "Running ${CMD}"
 
           if [[ "${{ matrix.runner.image }}" == "" ]]; then
-            bash -c "source ./.env && $CMD";
+            bash -c ". .env; $CMD";
           else
             docker run \
               --name test-container \
-              --env-file ./.env \
+              --env-file .env \
               -w $WORKSPACE \
               -v ${{ github.workspace }}:/workspace \
               -v ${{ env.BUILD_DIR }}:/opt/foo/build \

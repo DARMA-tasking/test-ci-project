@@ -53,6 +53,7 @@ jobs:
       BUILD_DIR: /opt/foo/build
       OUTPUT_DIR: /opt/foo/output
       CACHE_DIR: /opt/foo/build/ccache
+      COVERAGE_ENABLED: ${{  matrix.runner.name == 'wf-amd64-ubuntu-22.04-gcc-12-cpp' && 1 || 0 }}
     strategy:
       fail-fast: false
       matrix:
@@ -162,7 +163,7 @@ jobs:
             ls -l; \
             chmod +x ./build.sh; \
             \
-            export $(cat .env | egrep -v "(^#.*|^$)" | xargs) && ./build.sh'
+            export $(cat .env | egrep -v "(^#.*|^$)" | xargs) && export FOO_COVERAGE_ENABLED=${{ env.COVERAGE_ENABLED }} ./build.sh'
 
           echo "Running ${CMD}"
 

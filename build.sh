@@ -33,6 +33,12 @@ get_num_processors() {
 CURRENT_DIR="$(dirname $(realpath $0))"
 PARENT_DIR="$(dirname "$CURRENT_DIR")"
 
+
+if [ "$(uname)" == "Darwin" ]; then
+  CC=(which clang)
+  CXX=(which clang++)
+fi
+
 CC="${CC:-$(which gcc || echo '')}"
 CXX="${CXX:-$(which g++ || echo '')}"
 GCOV="${GCOV:-$(which gcov || echo '')}"

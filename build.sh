@@ -30,12 +30,13 @@ get_num_processors() {
     esac
 }
 
-CURRENT_DIR="$(dirname -- "$(realpath -- "$0")")"
+CURRENT_DIR="$(dirname $(realpath $0))"
 PARENT_DIR="$(dirname "$CURRENT_DIR")"
 
 CC="${CC:-$(which gcc || echo '')}"
 CXX="${CXX:-$(which g++ || echo '')}"
 GCOV="${GCOV:-$(which gcov || echo '')}"
+COV_REPORT_GENERATOR="${COV_REPORT_GENERATOR:-$(which lcov || which gcovr || echo '')}"
 FOO_SRC_DIR="${FOO_SRC_DIR:-$CURRENT_DIR}"
 FOO_BUILD_DIR="${FOO_BUILD_DIR:-$CURRENT_DIR/build}"
 FOO_OUTPUT_DIR="${FOO_OUTPUT_DIR:-$CURRENT_DIR/output}"
@@ -75,7 +76,7 @@ help() {
       -z   --coverage-report=[str]  Target path to generate coverage HTML report files (FOO_COVERAGE_REPORT=$FOO_COVERAGE_REPORT). Empty for no report.
 
       -j   --jobs=[int]             Number of processors to build (FOO_CMAKE_JOBS=$FOO_CMAKE_JOBS)
-      -o   --output-dir=[str]       Output directory. Used to host lcov .info files. Also default to host junit report (FOO_OUTPUT_DIR=$FOO_OUTPUT_DIR).
+      -o   --output-dir=[str]       Output directory. Used to host coverage report and junit report (FOO_OUTPUT_DIR=$FOO_OUTPUT_DIR).
 
       -t   --tests=[bool]           Build foo tests (FOO_TESTS_ENABLED=$FOO_TESTS_ENABLED)
       -a   --tests-report[str]      Unit tests Junit report path (FOO_TEST_REPORT=$FOO_TEST_REPORT). Empty for no report.
@@ -120,11 +121,11 @@ while getopts btch-: OPT; do  # allow -b -t -c -h, and --long_attr=value"
     x | cxx)              CXX="$OPTARG" ;;
     y | clean)            FOO_CLEAN=$(on_off $OPTARG) ;;
     g | coverage)         FOO_COVERAGE_ENABLED=$(on_off $OPTARG) ;;
-    z | coverage-report)  FOO_COVERAGE_REPORT=$(realpath -q "$OPTARG") ;;
+    z | coverage-report)  FOO_COVERAGE_REPORT=$(realpath "$OPTARG") ;;
     j | jobs)             FOO_CMAKE_JOBS=$OPTARG ;;
     o | output-dir )      FOO_OUTPUT_DIR=$(realpath "$OPTARG") ;;
     t | tests)            FOO_TESTS_ENABLED=$(on_off $OPTARG) ;;
-    a | tests-report)     FOO_TEST_REPORT=$(realpath -q "$OPTARG") ;;
+    a | tests-report)     FOO_TEST_REPORT=$(realpath "$OPTARG") ;;
     r | tests-run )       FOO_RUN_TESTS=$(on_off $OPTARG) ;;
     f | tests-run-filter) FOO_RUN_TESTS_FILTER="$OPTARG" ;;
     h | help )            help ;;
@@ -221,14 +222,26 @@ fi
 if [ "$FOO_COVERAGE_ENABLED" == "ON" ]; then
   mkdir -p "$FOO_OUTPUT_DIR"
   pushd $FOO_OUTPUT_DIR
-  # base coverage files
-  echo "lcov capture:"
-  lcov --capture --directory $FOO_BUILD_DIR --output-file lcov_foo_test.info --gcov-tool $GCOV
-  lcov --remove lcov_foo_test.info -o lcov_foo_test_no_deps.info '*/lib/*'
-  lcov --list lcov_foo_test_no_deps.info
-  # optional coverage html report
-  if [ "$FOO_COVERAGE_REPORT" != "" ]; then
-    genhtml --prefix ./src --ignore-errors source lcov_foo_test_no_deps.info --legend --title "$(git rev-parse HEAD)" --output-directory="$FOO_COVERAGE_REPORT"
+
+  if [[ "$COV_REPORT_GENERATOR" == *"gcovr"* ]]; then
+    pushd $FOO_BUILD_DIR
+    gcovr -r $CURRENT_DIR --html-details $FOO_OUTPUT_DIR/coverage.html
+    popd
+  else
+    if [[ "$COV_REPORT_GENERATOR" == *"lcov"* ]]; then
+      # base coverage files
+      echo "lcov capture:"
+      lcov --capture --directory $FOO_BUILD_DIR --output-file lcov_foo_test.info --gcov-tool $GCOV
+      lcov --remove lcov_foo_test.info -o lcov_foo_test_no_deps.info '*/lib/*'
+      lcov --list lcov_foo_test_no_deps.info
+      # optional coverage html report
+      if [ "$FOO_COVERAGE_REPORT" != "" ]; then
+        genhtml --prefix ./src --ignore-errors source lcov_foo_test_no_deps.info --legend --title "$(git rev-parse HEAD)" --output-directory="$FOO_COVERAGE_REPORT"
+      fi
+    else
+      echo Cannot determine the coverage report generator tool path. Please set COV_REPORT_GENERATOR variable !
+      exit 1;
+    fi
   fi
   popd
 fi

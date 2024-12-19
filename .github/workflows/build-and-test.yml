@@ -1,8 +1,3 @@
-# Template workflow (Github Workflows). VT example.
-
-# Build and test a project in all available setup configurations provided by DARMA-taking/workflows.
-# See also: Azure Pipelines version at ./azure/pipelines/build-and-test.yml
-
 name: PR tests
 
 on:
@@ -15,8 +10,8 @@ on:
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  CI_REPO: DARMA-tasking/workflows
-  CI_BRANCH: 2-implement-common-docker-containers # master
+  WF_REPO: DARMA-tasking/workflows
+  WF_BRANCH: 2-implement-common-docker-containers # master
 
 jobs:
   get-matrix:
@@ -32,10 +27,9 @@ jobs:
       - name: Get matrix
         id: get-matrix
         run: |
-          wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/matrix/github.json
+          wget https://raw.githubusercontent.com/${{ env.WF_REPO }}/refs/heads/${{ env.WF_BRANCH }}/ci/shared/matrix/github.json
           matrix=$(cat github.json | jq '.matrix')
           echo "runner=$(echo $matrix)" >> $GITHUB_OUTPUT
-
 
     outputs:
       matrix: ${{ steps.get-matrix.outputs.runner }}
@@ -80,7 +74,7 @@ jobs:
             echo "Set setup permissions..."
             sudo mkdir -p /opt
             sudo chown $(whoami) /opt
-            wget -O setup.sh https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/setup-${{ matrix.runner.setup }}.sh
+            wget -O setup.sh https://raw.githubusercontent.com/${{ env.WF_REPO }}/refs/heads/${{ env.WF_BRANCH }}/ci/shared/scripts/setup-${{ matrix.runner.setup }}.sh
             chmod +x setup.sh
             export WF_SETUP_ID=${{ matrix.runner.setup }}
             ./setup.sh
@@ -103,17 +97,6 @@ jobs:
             docker run ${{ matrix.runner.image }} $CMD
           fi
 
-      # TODO: remove the commented lines if 
-      # - name: Extract timestamps for caching (using CMake as in VT)
-      #   run: |
-      #     echo "$1=$2" >> $GITHUB_ENV
-
-      #     mkdir -p /opt/scripts
-      #     cd /opt/scripts
-      #     wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/runner/set-variable.sh && chmod +x set-variable.sh
-      #     wget https://raw.githubusercontent.com/${{ env.CI_REPO }}/refs/heads/${{ env.CI_BRANCH }}/ci/shared/scripts/runner/set-timestamps.sh && chmod +x set-timestamps.sh
-      #     ./set-timestamps.sh
-
       - name: Build timestamp for caching
         continue-on-error: true
         run: |
@@ -121,11 +104,6 @@ jobs:
           echo "TS_MONTH=$(date -u +%m)" >> $GITHUB_ENV
           echo "TS_DAY=$(date -u +%d)" >> $GITHUB_ENV
           echo "TS=$(date -u +%H:%M:%S)" >> $GITHUB_ENV
-
-      - name: Output timestamp for caching
-        continue-on-error: true
-        run: |
-          echo "my pipeline variable is $(TS) $(TS_YEAR) $(TS_MONTH) $(TS_DAY)"
 
       - name: Update cache
         continue-on-error: true

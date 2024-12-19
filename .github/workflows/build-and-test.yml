@@ -45,7 +45,7 @@ jobs:
       TS: ~
       BUILD_DIR: /opt/foo/build
       OUTPUT_DIR: /opt/foo/output
-      CACHE_DIR: /opt/foo/build/ccache
+      CCACHE_DIR: /opt/foo/build/ccache
       COVERAGE_ENABLED: ${{  matrix.runner.name == 'wf-amd64-ubuntu-22.04-gcc-12-cpp' && 1 || 0 }}
       JUNIT_REPORT_PATH: /opt/foo/output/junit.xml
     strategy:
@@ -111,7 +111,7 @@ jobs:
         env:
           cache_name: ${{ matrix.runner.name }}
         with:
-          path: ${{ env.CACHE_DIR }}
+          path: ${{ env.CCACHE_DIR }}
           key: ${{ runner.os }}-${{ env.cache_name }}-${{ env.TS_YEAR }}-${{ env.TS_MONTH }}-${{ env.TS_DAY }}-${{ env.TS }}
           restore-keys: |
             ${{ runner.os }}-${{ env.cache_name }}-${{ env.TS_YEAR }}-${{ env.TS_MONTH }}-${{ env.TS_DAY }}-

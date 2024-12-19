@@ -4,7 +4,8 @@
 FOO_ENV_FILE=.env
 
 # some variables we want to override
-FOO_CLEAN=1
+FOO_CLEAN=ON
+FOO_COVERAGE_ENABLED=ON
 
 # Path into the container to mount the current project directory
 WORKSPACE=/workspace
@@ -69,6 +70,7 @@ docker run \
     -e https_proxy="" \
     -e http_proxy="" \
     -e FOO_CLEAN=$FOO_CLEAN \
+    -e FOO_COVERAGE_ENABLED=$FOO_COVERAGE_ENABLED \
     -v $HOST_CCACHE_DIR:/opt/foo/ccache \
     $IMAGE \
     bash -c "$CMD"

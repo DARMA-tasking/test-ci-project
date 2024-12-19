@@ -41,8 +41,13 @@ else
   CXX="${CXX:-$(which g++ || which clang++ || echo '')}"  
 fi
 
-# GCOV is to specify lcov gcov-tool option. If using gcc-8 for example we should set gcov-8
+if [[ $CC == "gcc-"* ]] && [ -z "$GCOV" ]; then
+  GCOV=$(which gcov-$(cut -d "-" -f2- <<< $CC))
+fi
+
 GCOV="${GCOV:-$(which gcov || echo '')}"
+
+# GCOV is to specify lcov gcov-tool option. If using gcc-8 for example we should set gcov-8
 COV_REPORT_GENERATOR="${COV_REPORT_GENERATOR:-$(which lcov || which gcovr || echo '')}"
 FOO_SRC_DIR="${FOO_SRC_DIR:-$CURRENT_DIR}"
 FOO_BUILD_DIR="${FOO_BUILD_DIR:-$CURRENT_DIR/build}"

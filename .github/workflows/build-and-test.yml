@@ -121,7 +121,7 @@ jobs:
 
       - name: PR tests
         run: |
-          WORKSPACE=${{ github.workspace }} 
+          WORKSPACE=${{ github.workspace }}
           if [[ "${{ matrix.runner.image }}" != "" ]]; then
             WORKSPACE=/workspace
           fi

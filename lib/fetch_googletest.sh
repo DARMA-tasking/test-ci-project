@@ -3,7 +3,7 @@
 # History of used versions
 # release-1.12.1
 
-GTEST_BRANCHTAG=v1.15.2 
+GTEST_BRANCHTAG=v1.15.2
 
 # Fetch googletest from Github.
 LIB_DIR="$(dirname -- "$(realpath -- "$0")")"

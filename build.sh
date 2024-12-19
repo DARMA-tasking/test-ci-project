@@ -38,7 +38,7 @@ if [ "$(uname)" == "Darwin" ]; then
   CXX="${CXX:-$(xcodebuild -find clang++ || which g++ || which clang++ || echo '')}"
 else
   CC="${CC:-$(which gcc || which clang || echo '')}"
-  CXX="${CXX:-$(which g++ || which clang++ || echo '')}"  
+  CXX="${CXX:-$(which g++ || which clang++ || echo '')}"
 fi
 
 if [[ $CC == "gcc-"* ]] && [ -z "$GCOV" ]; then

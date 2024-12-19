@@ -154,7 +154,7 @@ jobs:
             exit $(docker container inspect --format '{{.State.ExitCode}}' test-container)
           fi
 
-          if [ -f" $FOO_TEST_REPORT" != "" ]; then
+          if [ -f "$FOO_TEST_REPORT" ]; then
             echo "JUNIT_REPORT_PATH=${FOO_TEST_REPORT}" >> "$GITHUB_OUTPUT"
           fi
 

@@ -11,7 +11,7 @@ on:
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   WF_REPO: DARMA-tasking/workflows
-  WF_BRANCH: 2-implement-common-docker-containers # master
+  WF_BRANCH: master
 
 jobs:
   get-matrix:
